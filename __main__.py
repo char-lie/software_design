@@ -1,23 +1,27 @@
 import psycopg2
+from random import randint
+from os import linesep
+
+from TransactionManager import TransactionManager
 
 
 if __name__ == '__main__':
     connection_string = "host='localhost' dbname='db_booking' user='postgres' password='12345'"
 
+    query_string = "insert into test values (%d);"
+    queries = [query_string%randint(0, 1000) for i in range(2)]
+
     connection = psycopg2.connect(connection_string)
     cursor = connection.cursor()
 
-    commands = [
-        "BEGIN;",
-        "insert into test values (1);",
-        "insert into test values (2);",
-        "PREPARE TRANSACTION 'mytran';"
-    ]
+    tm = TransactionManager(cursor)
+    tm.start_transaction('new_transaction')
+    tm.prepare_queries(queries)
+    tm.prepare_transaction()
+    tm.commit_transaction()
 
-    for c in commands:
-        cursor.execute(c)
-
-    cursor.execute("COMMIT PREPARED 'mytran';")
+    print 'Commands executed'.upper()
+    print linesep.join(queries)
 
     cursor.close()
     connection.close()
