@@ -8,11 +8,11 @@ addons:
 services:
   - postgresql
 before_script:
-  - psql -f create_dbs.sql -U postgres
-  - psql -f migrations_hotel.sql -U postgres -d test_db_hotel
-  - psql -f migrations_fly.sql -U postgres -d test_db_fly
+  - psql -f migrations/create_dbs.sql -U postgres
+  - psql -f migrations/migrations_hotel.sql -U postgres -d test_db_hotel
+  - psql -f migrations/migrations_fly.sql -U postgres -d test_db_fly
 script:
   - ./tests.sh
 after_script:
-  - psql -f drop_dbs.sql -U postgres
+  - psql -f migrations/drop_dbs.sql -U postgres
 
