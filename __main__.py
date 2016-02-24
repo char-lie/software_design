@@ -5,24 +5,63 @@ from os import linesep
 from TransactionManager import TransactionManager
 
 
-if __name__ == '__main__':
+def get_booking_connection():
     connection_string = "host='localhost' dbname='db_booking' user='postgres' password='12345'"
+    return psycopg2.connect(connection_string)
+
+
+def get_hotel_connection():
+    connection_string = "host='localhost' dbname='db_hotel' user='postgres' password='12345'"
+    return psycopg2.connect(connection_string)
+
+
+def book(tm, values):
 
     query_string = "insert into test values (%d);"
-    queries = [query_string%randint(0, 1000) for i in range(2)]
+    queries = [query_string%v for v in values]
 
-    connection = psycopg2.connect(connection_string)
+    connection = get_booking_connection()
     cursor = connection.cursor()
 
-    tm = TransactionManager(cursor)
-    tm.start_transaction('new_transaction')
-    tm.prepare_queries(queries)
-    tm.prepare_transaction()
-    tm.commit_transaction()
+    success = tm.add_transaction(cursor, queries)
 
-    print 'Commands executed'.upper()
+    if not success:
+        return connection
+
+    print 'Commands booking ready'.upper()
     print linesep.join(queries)
 
-    cursor.close()
-    connection.close()
+    return connection
+
+
+def hotel(tm, values):
+
+    query_string = "insert into test_hotel values ('%s');"
+    queries = [query_string%v for v in values]
+
+    connection = get_hotel_connection()
+    cursor = connection.cursor()
+
+    success = tm.add_transaction(cursor, queries)
+
+    if not success:
+        print 'Commands for hotel failed'.upper()
+        return connection
+
+    print 'Commands for hotel ready'.upper()
+    print linesep.join(queries)
+
+    return connection
+
+
+if __name__ == '__main__':
+
+    tm = TransactionManager()
+
+    booking_connection = book(tm, [randint(0, 1000) for i in range(2)])
+    hotel_connection = hotel(tm, ['a', 'b'])
+
+    tm.commit_transactions()
+
+    booking_connection.close()
 

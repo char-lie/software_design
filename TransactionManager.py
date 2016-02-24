@@ -1,30 +1,49 @@
+from uuid import uuid4
+
+
 class TransactionManager:
 
-    def __init__(self, cursor):
-        self.transaction_id = None
-        self.cursor = cursor
+    def __init__(self):
+        self.transactions = []
 
 
-    def start_transaction(self, transaction_id):
-        self.cursor.execute('BEGIN;')
-        self.transaction_id = transaction_id
+    def __begin_transaction(self, cursor):
+        cursor.execute('BEGIN;')
+        return (cursor, uuid4())
 
 
-    def prepare_queries(self, queries):
+    def __prepare_transaction(self, transaction):
+        cursor, transaction_id = transaction
+        cursor.execute('PREPARE TRANSACTION \'%s\';'%transaction_id)
+        print 'Prepared transaction %s'%transaction_id
+        self.transactions.append(transaction)
+
+
+    def __add_queries(self, cursor, queries):
+        transaction = self.__begin_transaction(cursor)
         for q in queries:
-            self.cursor.execute(q)
+            cursor.execute(q)
+        self.__prepare_transaction(transaction)
 
 
-    def prepare_transaction(self):
-        self.cursor.execute('PREPARE TRANSACTION \'%s\';'%self.transaction_id)
+    def add_transaction(self, cursor, queries):
+        try:
+            self.__add_queries(cursor, queries)
+        except Exception:
+            self.rollback_transactions()
+            return False
+        return True
 
 
-    def commit_transaction(self):
-        self.cursor.execute('COMMIT PREPARED \'%s\';'%self.transaction_id)
-        self.transaction_id = None
+    def commit_transactions(self):
+        for cursor, transaction_id in self.transactions:
+            print 'Commiting %s'%transaction_id
+            cursor.execute('COMMIT PREPARED \'%s\';'%transaction_id)
 
 
-    def rollback_transaction(self):
-        self.cursor.execute('ROLLBACK PREPARED \'%s\';'%self.transaction_id)
-        self.transaction_id = None
+    def rollback_transactions(self):
+        for cursor, transaction_id in self.transactions:
+            print 'Rolling back %s'%transaction_id
+            cursor.execute('ROLLBACK PREPARED \'%s\';'%transaction_id)
+        self.transactions = []
 
