@@ -83,7 +83,9 @@ def rollback_prepared(db):
                           connection=CONNECTION_PREFIX, db=db)
     connection = psycopg2.connect(connection_string)
     cursor = connection.cursor()
+    cursor.execute("rollback;")
     cursor.execute("select gid from pg_prepared_xacts;")
     for (gid,) in cursor.fetchall():
         cursor.execute("rollback prepared '%s';"%gid)
+    connection.close()
 
