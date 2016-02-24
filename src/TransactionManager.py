@@ -1,4 +1,6 @@
 from uuid import uuid4
+from traceback import print_exc
+from sys import stdout
 
 
 class TransactionManager:
@@ -30,6 +32,7 @@ class TransactionManager:
         try:
             self.__add_queries(cursor, queries)
         except Exception:
+            print_exc(file=stdout)
             self.rollback_transactions()
             return False
         return True
