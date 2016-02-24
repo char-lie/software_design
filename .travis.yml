@@ -9,6 +9,7 @@ services:
   - postgresql
 before_install:
   - sudo apt-get install postgresql-server-dev-all
+  - sudo sed 's/#max_prepared_transactions = 0/max_prepared_transactions = 5/g' -i /etc/postgresql/9.3/main/postgresql.conf
 install:
   - pip install fake-factory psycopg2
 before_script:
