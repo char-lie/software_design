@@ -1,10 +1,10 @@
 import psycopg2
 from random import randint
 from os import linesep
-from faker import Faker
 from datetime import datetime, timedelta
 
 from src import TransactionManager
+from src.utils import get_fly_book, get_hotel_book
 
 
 USER = 'test_user'
@@ -71,21 +71,8 @@ if __name__ == '__main__':
 
     tm = TransactionManager()
 
-    faker = Faker()
-
-    fly_book = {
-        'client': faker.name().replace('\'', '\\\''),
-        'number': faker.sha1(),
-        'fly_from': faker.country_code(),
-        'fly_to': faker.country_code(),
-        'book_date': str(faker.date_time_this_month())
-    }
-    hotel_book = {
-        'client': faker.name().replace('\'', '\\\''),
-        'hotel': faker.address().replace('\'', '\\\'').replace('\n', '; '),
-        'arrival': str(faker.date_time_this_month()),
-        'departure': str(datetime.now() + timedelta(days=faker.random_digit()))
-    }
+    fly_book = get_fly_book()
+    hotel_book = get_hotel_book()
     fly_connection = fly(tm, [fly_book])
     hotel_connection = hotel(tm, [hotel_book])
 
