@@ -7,6 +7,8 @@ addons:
   postgresql: "9.4"
 services:
   - postgresql
+install:
+    pip install fake-factory
 before_script:
   - psql -f migrations/create_dbs.sql -U postgres
   - psql -f migrations/migrations_hotel.sql -U postgres -d test_db_hotel
