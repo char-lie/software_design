@@ -31,11 +31,10 @@ class TransactionManager:
     def add_transaction(self, cursor, queries):
         try:
             self.__add_queries(cursor, queries)
-        except Exception:
+        except Exception as e:
             print_exc(file=stdout)
             self.rollback_transactions()
-            return False
-        return True
+            raise e
 
 
     def commit_transactions(self):

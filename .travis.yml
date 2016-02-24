@@ -14,7 +14,7 @@ before_script:
   - psql -f migrations/migrations_hotel.sql -U postgres -d test_db_hotel
   - psql -f migrations/migrations_fly.sql -U postgres -d test_db_fly
 script:
-  - ./tests.sh
+  - python -m tests
 after_script:
   - psql -f migrations/drop_dbs.sql -U postgres
 
