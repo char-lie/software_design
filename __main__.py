@@ -2,7 +2,7 @@ import psycopg2
 from random import randint
 from os import linesep
 
-from TransactionManager import TransactionManager
+from src import TransactionManager
 
 
 def get_booking_connection():
