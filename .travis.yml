@@ -10,8 +10,7 @@ services:
 before_install:
   - sudo apt-get install postgresql-server-dev-all
 install:
-  - pip install fake-factory
-  - pip install psycopg2
+  - pip install fake-factory psycopg2
 before_script:
   - psql -f migrations/create_dbs.sql -U postgres
   - psql -f migrations/migrations_hotel.sql -U postgres -d test_db_hotel
