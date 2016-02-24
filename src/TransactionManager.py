@@ -1,6 +1,7 @@
 from uuid import uuid4
-from traceback import print_exc
+from traceback import format_exc
 from sys import stdout
+import logging
 
 
 class TransactionManager:
@@ -17,7 +18,7 @@ class TransactionManager:
     def __prepare_transaction(self, transaction):
         cursor, transaction_id = transaction
         cursor.execute('PREPARE TRANSACTION \'%s\';'%transaction_id)
-        print 'Prepared transaction %s'%transaction_id
+        logging.info('Prepared transaction %s'%transaction_id)
         self.transactions.append(transaction)
 
 
@@ -32,20 +33,20 @@ class TransactionManager:
         try:
             self.__add_queries(cursor, queries)
         except Exception as e:
-            print_exc(file=stdout)
+            logging.warning(format_exc())
             self.rollback_transactions()
             raise e
 
 
     def commit_transactions(self):
         for cursor, transaction_id in self.transactions:
-            print 'Commiting %s'%transaction_id
+            logging.info('Commiting %s'%transaction_id)
             cursor.execute('COMMIT PREPARED \'%s\';'%transaction_id)
 
 
     def rollback_transactions(self):
         for cursor, transaction_id in self.transactions:
-            print 'Rolling back %s'%transaction_id
+            logging.info('Rolling back %s'%transaction_id)
             cursor.execute('ROLLBACK PREPARED \'%s\';'%transaction_id)
         self.transactions = []
 
