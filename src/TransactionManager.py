@@ -33,6 +33,7 @@ class TransactionManager:
         try:
             self.__add_queries(cursor, queries)
         except Exception as e:
+            cursor.execute("rollback;")
             logging.warning(format_exc())
             self.rollback_transactions()
             raise e
